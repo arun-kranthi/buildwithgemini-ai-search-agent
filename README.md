@@ -1,83 +1,74 @@
-# NexusSearch Enterprise AI — Autonomous Cross-System Intelligence
+# NexusSearch Master Enterprise AI — Autonomous Intelligence & MCP Hub
 
 [![Gemini 2.5 Flash](https://img.shields.io/badge/Model-Gemini%202.5%20Flash-06b6d4?style=for-the-badge&logo=google)](https://ai.google.dev/)
 [![Google ADK](https://img.shields.io/badge/Framework-Google%20ADK-3b82f6?style=for-the-badge)](https://github.com/google/adk)
+[![MCP Enabled](https://img.shields.io/badge/Protocol-Model%20Context%20Protocol%20(MCP)-10b981?style=for-the-badge)](https://modelcontextprotocol.io)
+[![Public REST APIs](https://img.shields.io/badge/Integrations-5%20Public%20REST%20APIs-f43f5e?style=for-the-badge)](https://github.com/google/adk)
 [![A2UI Enabled](https://img.shields.io/badge/UI-A2UI%20Rich%20Cards-8b5cf6?style=for-the-badge)](https://github.com/google/a2ui)
-[![FastAPI](https://img.shields.io/badge/Proxy-FastAPI%20A2A-10b981?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 
-**NexusSearch Enterprise AI** is an enterprise-grade autonomous cross-system intelligence agent built with **Google ADK (Agent Development Kit)**, **Gemini 2.5 Flash**, **Vertex AI**, and **FastAPI**. It breaks down data silos by autonomously routing, querying, and synthesizing real-time data across 5 enterprise microservice domains: E-Commerce Orders, Supply Chain Logistics, Salesforce CRM 360, SAP ERP Finance, and Workday HR & ServiceNow IT Directories.
+**NexusSearch Master Enterprise AI** is an enterprise-grade autonomous intelligence platform powered by **Google ADK (Agent Development Kit)**, **Gemini 2.5 Flash**, **Model Context Protocol (MCP v1.0)**, and **FastAPI**.
 
-![NexusSearch Enterprise AI Demo](demo.gif)
+It seamlessly connects enterprise ERP databases with live public web APIs and external MCP server microservices, executing real-time cross-system searches across:
+1. **5 Enterprise Microservices**: E-Commerce Orders, Supply Chain Logistics, Salesforce CRM 360, SAP ERP Finance, and Workday HR & ServiceNow IT Directory.
+2. **5 Public REST APIs**: CoinGecko Crypto Prices, Open-Meteo Weather Forecast, REST Countries Global Trade, HackerNews Algolia Search, and JSONPlaceholder Mock Payload.
+3. **Model Context Protocol (MCP) Microservices**: Auto-registers external MCP servers (`firebase_mcp`, `google_developer_knowledge_mcp`) into the agent's runtime context.
 
----
-
-## 🌟 Resume Highlights & Technical Architecture
-
-- **Multi-Domain Autonomous Routing**: Intelligent LLM routing agent that dynamically determines tool invocations across 5 isolated enterprise databases.
-- **Glassmorphic Enterprise Dashboard**: Modern UI with a dedicated system sidebar, live microservice uptime monitoring (<84ms latency), active domain filtering (`ALL_SYSTEMS`, `SUPPLY_CHAIN`, `ECOMMERCE`, `CRM`, `FINANCE`, `HR_IT`), and interactive prompt chips.
-- **Interactive A2UI Card Renderer**: Generates native A2UI display cards with actionable buttons (`[📦 Track Live Route]`, `[💳 SAP Invoice PDF]`, `[👤 Escalate Lead]`) that trigger real-time backend audit events.
-- **Cross-System Crisis Resolution**: Solves multi-system operational bottlenecks (e.g., Dallas SKU shortages) by identifying impacted orders, CRM account owners, SAP payment holds, and HR escalation leads in a single query.
-- **GenAI Architecture Diagram Generator**: Dynamically generates system architecture flowcharts using Vertex AI Imagen 3.
+![NexusSearch Master Enterprise AI Demo](demo.gif)
 
 ---
 
-## 🏗 System Architecture & Microservice Integration
+## 🌐 Integrated Public REST APIs & MCP Services
+
+| Category | Provider / Standard | Function / Capabilities |
+| :--- | :--- | :--- |
+| 🪙 **Crypto Market Data** | **CoinGecko REST API** | Live prices for Bitcoin, Ethereum, Solana, and 24h market trends |
+| 🌤 **Logistics Weather** | **Open-Meteo REST API** | Real-time weather, wind speeds, and climate conditions for transit hubs |
+| 🌐 **Global Trade** | **REST Countries API** | Official country names, capitals, currency codes, and subregion stats |
+| 📰 **Tech News & Trends** | **HackerNews Algolia API** | Live search across developer trends, AI news, and community scores |
+| 🔌 **MCP Microservices** | **Model Context Protocol (MCP)** | Dynamic discovery and execution of external MCP server tools |
+
+---
+
+## 🏗 Master System Architecture
 
 ```
-                 +-------------------------------------------------+
-                 |  NexusSearch Glassmorphic Dark Dashboard UI     |
-                 +-----------------------+-------------------------+
-                                         |
-                                (HTTP / A2A Protocol)
-                                         v
-                 +-------------------------------------------------+
-                 |       FastAPI Proxy Server (main.py)           |
-                 +-----------------------+-------------------------+
-                                         |
-                                         v
-                 +-------------------------------------------------+
-                 |   Google ADK LlmAgent (Gemini 2.5 Flash Engine) |
-                 +----+---------------+---------------+-------+----+
-                      |               |               |       |
-      +---------------+   +-----------+---+   +-------+---+   +---------------+
-      |                   |               |               |                   |
-      v                   v               v               v                   v
-+-------------+    +-------------+  +-----------+   +-----------+    +-----------------+
-|📦 Logistics |    |🛒 E-Commerce|  |👥 CRM 360 |   |💳 SAP ERP |    |💻 Workday /     |
-|   (FedEx/   |    |  (Orders &  |  | (Accounts |   | (Finance  |    |  ServiceNow IT  |
-|  Warehouse) |    | Line Items) |  |  & ARR)   |   | & Invoices|    |   Directory     |
-+-------------+    +-------------+  +-----------+   +-----------+    +-----------------+
+                                  +-------------------------------------------------+
+                                  |  NexusSearch Master Glassmorphic Dashboard UI   |
+                                  +-----------------------+-------------------------+
+                                                          |
+                                                 (FastAPI A2A Proxy)
+                                                          v
+                                  +-------------------------------------------------+
+                                  |   Google ADK LlmAgent (Gemini 2.5 Flash Engine) |
+                                  +----+---------------+---------------+-------+----+
+                                       |               |               |
+             +-------------------------+               |               +-------------------------+
+             |                                         v                                         |
+             v                         +-------------------------------+                         v
++--------------------------+           | 🔌 Connected MCP Servers      |           +--------------------------+
+| 📦 Enterprise Microservices|           |  - Firebase MCP               |           | 🌐 Public REST Web APIs  |
+|  - E-Commerce & Logistics|           |  - Google Dev Knowledge MCP   |           |  - CoinGecko Crypto API  |
+|  - Salesforce CRM 360    |           |  - Custom Microservice MCP    |           |  - Open-Meteo Weather API |
+|  - SAP ERP Finance       |           +-------------------------------+           |  - REST Countries API    |
+|  - Workday HR & IT       |                                                       |  - HackerNews Algolia    |
++--------------------------+                                                       +--------------------------+
 ```
 
 ---
 
 ## 🚀 Quickstart & Setup Guide
 
-### 1. Prerequisites
-- Python 3.10+
-- `uv` package manager (`pip install uv`)
-
-### 2. Installation
+### 1. Installation
 ```bash
 git clone https://github.com/arun-kranthi/buildwithgemini-ai-search-agent.git
 cd buildwithgemini-ai-search-agent
 uv sync
 ```
 
-### 3. Launching Local Server
+### 2. Launching Master Application
 ```bash
 cd frontend
 PORT=8081 uv run python main.py
 ```
 
-Open `http://localhost:8081` in your browser to interact with the NexusSearch Dashboard.
-
----
-
-## 🛠 Tech Stack
-
-- **AI & Agent Orchestration**: Google Agent Development Kit (ADK), Gemini 2.5 Flash, Vertex AI Imagen 3
-- **Protocol & Formats**: Agent-to-Agent (A2A) Protocol, A2UI (Agent-to-User Interface v0.8)
-- **Backend & Proxy**: FastAPI, Uvicorn, Pydantic, Python 3.13
-- **Frontend & Styling**: Vanilla HTML5/CSS3 (Glassmorphism, CSS Variables, Micro-animations), Material Symbols, Google Fonts
-- **Automation & Testing**: Playwright Async, ImageIO / PIL
+Open `http://localhost:8081` in your browser to try out live REST API queries, MCP tool execution, and enterprise cross-system searches!
