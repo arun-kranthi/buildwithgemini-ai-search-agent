@@ -1,85 +1,77 @@
-from typing import List, Dict, Any
+from typing import Dict, Any, List
+from app.mock_systems import (
+    MOCK_SUPPLY_CHAIN_DB,
+    MOCK_ECOMMERCE_DB,
+    MOCK_CRM_DB,
+    MOCK_FINANCE_DB,
+    MOCK_HR_IT_DB
+)
 
-MOCK_DOCUMENTS = [
-    {
-        "doc_id": "DOC-101",
-        "title": "API Authentication & OAuth 2.0 Security Guidelines",
-        "category": "Engineering / Security",
-        "author": "Security Architecture Team",
-        "last_updated": "2026-08-20",
-        "summary": "Standard OAuth 2.0, JWT token validation, and service account key rotation policies for all enterprise microservices.",
-        "tags": ["OAuth2", "Security", "JWT", "Authentication", "API"]
-    },
-    {
-        "doc_id": "DOC-102",
-        "title": "Q3 Cloud Architecture & Multi-Region GKE Deployment",
-        "category": "Infrastructure / Cloud",
-        "author": "DevOps & Cloud Infra",
-        "last_updated": "2026-09-01",
-        "summary": "Deployment specifications for multi-region GKE clusters, Cloud Spanner database replication, and global load balancing.",
-        "tags": ["GKE", "Kubernetes", "Multi-Region", "Spanner", "Architecture"]
-    },
-    {
-        "doc_id": "DOC-103",
-        "title": "Vector Database Indexing & RAG Retrieval Specs",
-        "category": "AI / Data Engineering",
-        "author": "AI Platform Team",
-        "last_updated": "2026-09-15",
-        "summary": "Vector embedding dimensions, HNSW index parameter tuning, and hybrid keyword-dense retrieval benchmarks for Vertex AI Search.",
-        "tags": ["Vector DB", "RAG", "Embeddings", "Vertex AI", "Search"]
-    },
-    {
-        "doc_id": "DOC-104",
-        "title": "Enterprise Data Governance & Compliance Policy v4",
-        "category": "Governance & Legal",
-        "author": "Data Governance Board",
-        "last_updated": "2026-07-10",
-        "summary": "Data classification guidelines (Public, Internal, Confidential, Restricted), PII redaction rules, and retention schedules.",
-        "tags": ["Governance", "Compliance", "PII", "GDPR", "Data Safety"]
-    }
-]
+def search_orders_and_logistics(order_id: str = "ORD-98214", tracking_number: str = "TRK-9921") -> Dict[str, Any]:
+    """Query E-Commerce Order Management & Logistics tracking system."""
+    order = MOCK_ECOMMERCE_DB["orders"].get(order_id, {
+        "order_id": order_id,
+        "customer_id": "CUST-ACME-001",
+        "customer_name": "Acme Industrial Corporation",
+        "order_status": "PARTIALLY_SHIPPED",
+        "total_amount": 58900.00,
+        "items": [{"sku": "SKU-4091", "name": "Industrial Sensor Controller X-200", "qty": 40}],
+        "tracking_number": tracking_number
+    })
+    shipment = MOCK_SUPPLY_CHAIN_DB["shipments"].get(tracking_number, {
+        "carrier": "FedEx Freight Express",
+        "tracking_number": tracking_number,
+        "status": "IN_TRANSIT_DELAYED",
+        "estimated_delivery": "2026-09-26 14:00 EST"
+    })
+    return {"domain": "ECOMMERCE_LOGISTICS", "order": order, "shipment": shipment}
 
-def search_enterprise_documents(query: str, category_filter: str = "") -> Dict[str, Any]:
-    """Search internal enterprise documentation and knowledge base articles.
-    
-    Args:
-        query: The search query string (e.g., 'API authentication', 'cloud architecture').
-        category_filter: Optional filter by department or category.
-    """
-    query_lower = query.lower()
-    results = []
-    
-    for doc in MOCK_DOCUMENTS:
-        match_title = any(word in doc["title"].lower() for word in query_lower.split())
-        match_summary = any(word in doc["summary"].lower() for word in query_lower.split())
-        match_tags = any(word in [t.lower() for t in doc["tags"]] for word in query_lower.split())
-        
-        if match_title or match_summary or match_tags or not query:
-            if not category_filter or category_filter.lower() in doc["category"].lower():
-                results.append(doc)
-                
+def search_customer_360_finance(customer_id: str = "CUST-ACME-001") -> Dict[str, Any]:
+    """Query Salesforce CRM Customer 360 profile and SAP Finance overdue invoices."""
+    cust = MOCK_CRM_DB["customers"].get("CUST-ACME-001", {
+        "company_name": "Acme Industrial Corporation",
+        "tier": "PLATINUM_ENTERPRISE",
+        "arr": "$2,400,000",
+        "account_executive": "David Ross (david.ross@enterprise.com)"
+    })
+    inv = MOCK_FINANCE_DB["invoices"].get("INV-8812", {
+        "invoice_id": "INV-8812",
+        "amount": "$42,500.00",
+        "due_date": "2026-08-15",
+        "status": "OVERDUE_30_DAYS"
+    })
+    return {"domain": "CRM_FINANCE", "customer": cust, "invoice": inv}
+
+def search_hr_and_it_directory(employee_id: str = "EMP-104") -> Dict[str, Any]:
+    """Query Workday HR Directory and ServiceNow IT Asset Management."""
+    emp = MOCK_HR_IT_DB["employees"].get("EMP-104", {
+        "employee_id": "EMP-104",
+        "name": "Sarah Jenkins",
+        "title": "Lead Supply Chain Operations Specialist",
+        "department": "Supply Chain Operations",
+        "email": "sarah.jenkins@enterprise.com",
+        "assigned_hardware": {
+            "laptop": "MacBook Pro 16 M3 Max (TAG-8821)",
+            "monitors": ["Dell UltraSharp 32 4K (TAG-9912)", "Dell UltraSharp 32 4K (TAG-9913)"],
+            "security_clearance": ["SupplyChain_Admin", "SAP_ERP_Write", "GKE_Ops_Viewer"]
+        }
+    })
+    return {"domain": "HR_IT_DIRECTORY", "employee": emp}
+
+def search_supply_chain_shortage(sku: str = "SKU-4091", warehouse: str = "Dallas") -> Dict[str, Any]:
+    """Execute cross-system analysis for critical part shortages, impacted orders, CRM contacts, and escalation leads."""
     return {
-        "query": query,
-        "total_matches": len(results),
-        "documents": results if results else MOCK_DOCUMENTS[:2]
-    }
-
-def get_document_details(doc_id: str) -> Dict[str, Any]:
-    """Get full document metadata, author details, and text content by document ID.
-    
-    Args:
-        doc_id: The document ID (e.g., 'DOC-101').
-    """
-    for doc in MOCK_DOCUMENTS:
-        if doc["doc_id"].upper() == doc_id.upper():
-            return doc
-            
-    return {
-        "doc_id": doc_id,
-        "title": f"Enterprise Specification Guide {doc_id}",
-        "category": "Engineering",
-        "author": "Tech Staff",
-        "last_updated": "2026-09-01",
-        "summary": "Verified internal reference documentation.",
-        "tags": ["Enterprise", "Guide"]
+        "domain": "CROSS_SYSTEM_CRISIS",
+        "shortage": {
+            "sku": sku,
+            "warehouse": warehouse,
+            "current_stock": 14,
+            "required_stock": 50,
+            "severity": "CRITICAL_SHORTAGE",
+            "impacted_orders": ["ORD-98214"],
+            "impacted_customers": ["Acme Industrial Corporation (CUST-ACME-001)"],
+            "account_executive": "David Ross (david.ross@enterprise.com)",
+            "finance_status": "Overdue Invoice INV-8812 ($42,500.00) - On Hold",
+            "escalation_lead": "Sarah Jenkins (sarah.jenkins@enterprise.com, Lead Supply Chain Ops)"
+        }
     }

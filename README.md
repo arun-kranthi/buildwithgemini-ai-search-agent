@@ -1,72 +1,49 @@
-# Enterprise AI Search & Knowledge Discovery Agent
+# Enterprise AI Search Agent
 
-![Enterprise AI Search Demo](./demo.gif)
+An enterprise-grade autonomous AI search agent powered by Google ADK (Agent Development Kit), Gemini 2.5 Flash, and Vertex AI. It provides cross-system search across 5 key enterprise domains: Supply Chain & Logistics, E-Commerce Orders, Salesforce CRM 360, SAP ERP Finance, and Workday HR & ServiceNow IT Asset Directory.
 
-An enterprise-grade semantic search and knowledge discovery agent built with **Google ADK (Agent Development Kit)** and **Vertex AI**. The agent indexes internal technical documentation, provides instant RAG search results with rich A2UI cards, and generates technical data flow architecture diagrams.
+![Enterprise AI Search Demo](demo.gif)
 
----
+## Key Features & Capabilities
 
-## 🌟 Key Features & Capabilities
+- **E-Commerce & Supply Chain Search**: Search orders (`ORD-98214`), line items, warehouse stock levels, carrier details (`TRK-9921`), and delivery ETAs.
+- **Salesforce CRM 360 & SAP Finance**: Query customer profiles (`CUST-ACME-001`), ARR tier, assigned Account Executive, credit limits, and overdue invoices (`INV-8812`).
+- **Workday HR & ServiceNow IT Directory**: Search employee profiles (`EMP-104` Sarah Jenkins), assigned laptops, dual-monitor setups, and system security clearance roles.
+- **Autonomous Multi-System Crisis Resolution**: Performs multi-system cross-cutting analysis when a critical part shortage occurs (e.g. `SKU-4091` in Dallas), identifying impacted customer orders, CRM account owners, invoice hold statuses, and HR escalation leads.
+- **A2UI Rich Display Cards**: Emits structured A2UI display cards rendered in the custom glassmorphic web UI.
 
-- **🔍 Semantic Enterprise Search**: Search internal engineering guidelines, security policies, cloud architecture specs, and governance documents.
-- **🎨 Native A2UI 0.8 Display Cards**: Renders structured document cards, category badges, author metadata, and search summaries natively in the UI.
-- **🧠 PreloadMemoryTool**: Maintains cross-session awareness of role-based search preferences and user interest topics.
-- **📊 Architecture Flowchart Generation**: Generates clean technical data flow diagrams for RAG vector search pipelines.
-- **⚡ FastAPI A2A Frontend Proxy**: Secure backend proxy bridging browser interactions with the agent runtime.
+## Project Structure
 
----
+```
+ai-search-agent/
+├── app/
+│   ├── agentic_explorer.py  # ADK LlmAgent definition
+│   ├── intent.py            # Agent prompt instructions
+│   ├── mock_systems.py      # Mock enterprise datasets across 5 domains
+│   ├── search_tools.py      # Function tools for enterprise search
+│   ├── image_gen_tools.py   # Architecture diagram generator tool
+│   └── a2ui_utils.py        # A2UI callback handlers
+├── frontend/
+│   ├── main.py              # FastAPI A2A proxy server
+│   └── static/
+│       └── index.html       # Enterprise Dark UI with prompt chips & A2UI renderer
+├── demo.gif                 # Animated demo walkthrough
+├── pyproject.toml           # Hatchling package configuration
+└── agents-cli-manifest.yaml # Agents-CLI manifest configuration
+```
 
-## 🛠️ Implemented Tools & Architecture
+## Running Locally
 
-| Component | Implementation | Description |
-| :--- | :--- | :--- |
-| **Agent Framework** | `google-adk` | Google ADK `LlmAgent` using Gemini models |
-| **UI Rendering** | `a2ui-agent-sdk` | A2UI 0.8 schema cards for search results & citations |
-| **Memory** | `PreloadMemoryTool` | Contextual session memory for recent search topics |
-| **Diagram Generation**| `Vertex AI Imagen 3` | Technical architecture diagram generation |
-| **Frontend Proxy** | `FastAPI + Uvicorn` | Modern dark-themed glassmorphic web interface |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python `>=3.11`
-- `uv` package manager
-
-### Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/arun-kranthi/buildwithgemini-ai-search-agent.git
-   cd buildwithgemini-ai-search-agent
-   ```
-
-2. **Install dependencies**:
+1. **Install Dependencies**:
    ```bash
    uv sync
    ```
 
-3. **Start the local server**:
+2. **Start the Frontend & Search Server**:
    ```bash
    cd frontend
    PORT=8081 uv run python main.py
    ```
 
-4. **Access the application**:
-   Open your browser to port `8081` to start querying internal enterprise documentation.
-
----
-
-## 🧪 Example Prompts
-
-- `Search internal engineering docs for API authentication`
-- `Summarize Q3 cloud architecture guidelines`
-- `Generate RAG retrieval data flow diagram`
-
----
-
-## 📄 License
-
-Apache 2.0 License. Built for the Google Build with Gemini Track 2 Lab.
+3. **Open in Browser**:
+   Navigate to `http://localhost:8081` to interact with the Enterprise AI Search Agent interface and try out the example prompt chips.
