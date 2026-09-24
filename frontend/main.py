@@ -15,9 +15,9 @@ from app.search_tools import (
 from app.image_gen_tools import generate_search_diagram
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("ai_search_frontend")
+logger = logging.getLogger("nexus_search_frontend")
 
-app = FastAPI(title="Enterprise AI Search Frontend Proxy")
+app = FastAPI(title="NexusSearch Enterprise AI Proxy")
 
 class ChatRequest(BaseModel):
     message: str
@@ -29,18 +29,36 @@ async def chat(req: ChatRequest):
     session_id = req.session_id or str(uuid.uuid4())
     query = req.message
     query_lower = query.lower()
-    logger.info(f"Processing Enterprise Search query: '{query}'")
+    target = req.target_system or "ALL_SYSTEMS"
+    logger.info(f"Processing NexusSearch query: '{query}' [Target: {target}]")
     
     parts_list = []
     
-    if "diagram" in query_lower or "flowchart" in query_lower:
+    if "execute action:" in query_lower:
+        action_name = query.split("execute action:")[-1].strip()
+        text_resp = f"⚡ **Interactive Action Dispatched**: `{action_name}`\n\n" \
+                    f"• **Status**: `EXECUTED_SUCCESSFULLY`\n" \
+                    f"• **Audit Event**: Registered in SAP / ServiceNow Audit Log\n" \
+                    f"• **Notification Sent**: Real-time push dispatched to operational team."
+        parts_list.append({"kind": "text", "text": text_resp})
+        
+        card_parts = [
+            {"id": "card_root", "component": {"Card": {"child": "column_main"}}},
+            {"id": "column_main", "component": {"Column": {"children": {"explicitList": ["text_title", "divider_1", "text_body"]}}}},
+            {"id": "text_title", "component": {"Text": {"text": {"literalString": f"⚡ Action Completed: {action_name}"}, "usageHint": "h3"}}},
+            {"id": "divider_1", "component": {"Divider": {}}},
+            {"id": "text_body", "component": {"Text": {"text": {"literalString": f"Event ID: EVT-{uuid.uuid4().hex[:8].upper()}\nStatus: SUCCESS | Audit: Logged"}, "usageHint": "body"}}}
+        ]
+        parts_list.append({"kind": "a2ui", "data": {"surfaceUpdate": {"surfaceId": "action_result", "components": card_parts}}})
+
+    elif "diagram" in query_lower or "flowchart" in query_lower or "architecture" in query_lower:
         diag_res = generate_search_diagram(query)
         parts_list.append({
             "kind": "text", 
             "text": f"Generated Architecture & Data Flow Diagram for query: '{query}'\n{diag_res}"
         })
-        
-    elif "shortage" in query_lower or "crisis" in query_lower or "sku-4091" in query_lower and "dallas" in query_lower:
+
+    elif "shortage" in query_lower or "crisis" in query_lower or ("sku-4091" in query_lower and "dallas" in query_lower):
         res = search_supply_chain_shortage()
         short = res["shortage"]
         
@@ -62,7 +80,7 @@ async def chat(req: ChatRequest):
         ]
         parts_list.append({"kind": "a2ui", "data": {"surfaceUpdate": {"surfaceId": "crisis_search", "components": card_parts}}})
 
-    elif "ord-" in query_lower or "trk-" in query_lower or "order" in query_lower or "tracking" in query_lower:
+    elif target == "ECOMMERCE" or "ord-" in query_lower or "trk-" in query_lower or "order" in query_lower or "tracking" in query_lower:
         res = search_orders_and_logistics()
         order = res["order"]
         shipment = res["shipment"]
@@ -87,14 +105,14 @@ async def chat(req: ChatRequest):
         
         card_parts = [
             {"id": "card_root", "component": {"Card": {"child": "column_main"}}},
-            {"id": "column_main", "component": {"Column": {"children": {"explicitList": ["text_title", "divider_1", "text_body"]}}}},
+            {"id": "column_main", "component": {"Column": {"children": {"explicitList":["text_title", "divider_1", "text_body"]}}}},
             {"id": "text_title", "component": {"Text": {"text": {"literalString": f"📦 Order & Logistics: {order.get('order_id', 'ORD-98214')}"}, "usageHint": "h3"}}},
             {"id": "divider_1", "component": {"Divider": {}}},
             {"id": "text_body", "component": {"Text": {"text": {"literalString": f"Tracking: {trk_val} ({carrier_val})\nStatus: {ship_status} | ETA: {eta_val}\nCustomer ID: {order.get('customer_id', 'CUST-ACME-001')}"}, "usageHint": "body"}}}
         ]
         parts_list.append({"kind": "a2ui", "data": {"surfaceUpdate": {"surfaceId": "order_search", "components": card_parts}}})
 
-    elif "cust-" in query_lower or "acme" in query_lower or "customer" in query_lower or "invoice" in query_lower:
+    elif target in ["CRM", "FINANCE"] or "cust-" in query_lower or "acme" in query_lower or "customer" in query_lower or "invoice" in query_lower:
         res = search_customer_360_finance()
         cust = res["customer"]
         inv = res["invoice"]
@@ -108,14 +126,14 @@ async def chat(req: ChatRequest):
         
         card_parts = [
             {"id": "card_root", "component": {"Card": {"child": "column_main"}}},
-            {"id": "column_main", "component": {"Column": {"children": {"explicitList": ["text_title", "divider_1", "text_body"]}}}},
+            {"id": "column_main", "component": {"Column": {"children": {"explicitList":["text_title", "divider_1", "text_body"]}}}},
             {"id": "text_title", "component": {"Text": {"text": {"literalString": f"💼 Customer 360: {cust.get('company_name', 'Acme Industrial')}"}, "usageHint": "h3"}}},
             {"id": "divider_1", "component": {"Divider": {}}},
             {"id": "text_body", "component": {"Text": {"text": {"literalString": f"Tier: {cust.get('tier', 'PLATINUM_ENTERPRISE')} | ARR: {cust.get('arr', '$2,400,000')}\nAE Lead: {cust.get('account_executive', 'David Ross')}\nOverdue Invoice: {inv.get('invoice_id', 'INV-8812')} ({inv.get('amount', '$42,500.00')})"}, "usageHint": "body"}}}
         ]
         parts_list.append({"kind": "a2ui", "data": {"surfaceUpdate": {"surfaceId": "crm_search", "components": card_parts}}})
 
-    elif "emp-" in query_lower or "sarah" in query_lower or "employee" in query_lower or "hardware" in query_lower:
+    elif target == "HR_IT" or "emp-" in query_lower or "sarah" in query_lower or "employee" in query_lower or "hardware" in query_lower:
         res = search_hr_and_it_directory()
         emp = res["employee"]
         hw = emp.get("assigned_hardware", emp.get("it_hardware", {}))
@@ -134,7 +152,7 @@ async def chat(req: ChatRequest):
         
         card_parts = [
             {"id": "card_root", "component": {"Card": {"child": "column_main"}}},
-            {"id": "column_main", "component": {"Column": {"children": {"explicitList": ["text_title", "divider_1", "text_body"]}}}},
+            {"id": "column_main", "component": {"Column": {"children": {"explicitList":["text_title", "divider_1", "text_body"]}}}},
             {"id": "text_title", "component": {"Text": {"text": {"literalString": f"👤 HR & IT Asset Record: {emp.get('name', 'Sarah Jenkins')}"}, "usageHint": "h3"}}},
             {"id": "divider_1", "component": {"Divider": {}}},
             {"id": "text_body", "component": {"Text": {"text": {"literalString": f"Title: {emp.get('title', 'Lead Ops Specialist')}\nLaptop: {laptop_val}\nRoles: {roles_val}"}, "usageHint": "body"}}}
@@ -156,7 +174,7 @@ async def chat(req: ChatRequest):
         
         card_parts = [
             {"id": "card_root", "component": {"Card": {"child": "column_main"}}},
-            {"id": "column_main", "component": {"Column": {"children": {"explicitList": ["text_title", "divider_1", "text_body"]}}}},
+            {"id": "column_main", "component": {"Column": {"children": {"explicitList":["text_title", "divider_1", "text_body"]}}}},
             {"id": "text_title", "component": {"Text": {"text": {"literalString": f"🚨 Shortage Alert: {short['sku']} ({short['warehouse']})"}, "usageHint": "h3"}}},
             {"id": "divider_1", "component": {"Divider": {}}},
             {"id": "text_body", "component": {"Text": {"text": {"literalString": f"Impacted Orders: {', '.join(short['impacted_orders'])}\nCRM AE: {short['account_executive']}\nEscalation Lead: {short['escalation_lead']}"}, "usageHint": "body"}}}
