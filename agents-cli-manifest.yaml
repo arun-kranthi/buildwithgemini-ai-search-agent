@@ -1,0 +1,5 @@
+manifest_version: 1.0.0
+framework: adk
+agent_directory: app
+agent_name: enterprise_ai_search
+description: Enterprise AI Search & Knowledge Discovery Agent

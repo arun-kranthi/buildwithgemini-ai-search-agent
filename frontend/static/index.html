@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise AI Search & Knowledge Discovery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0b132b 0%, #1c2541 50%, #0f172a 100%);
+      --panel-bg: rgba(30, 41, 59, 0.75);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --accent: #06b6d4;
+      --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --user-msg-bg: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      --agent-msg-bg: rgba(30, 41, 59, 0.85);
+      --card-bg: rgba(15, 23, 42, 0.7);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    header {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-gradient);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #4ade80;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 85%;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .message.user { align-self: flex-end; }
+    .message.agent { align-self: flex-start; }
+    .msg-bubble {
+      padding: 1rem 1.25rem;
+      border-radius: 16px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+    .message.user .msg-bubble {
+      background: var(--user-msg-bg);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .message.agent .msg-bubble {
+      background: var(--agent-msg-bg);
+      border: 1px solid var(--panel-border);
+      border-bottom-left-radius: 4px;
+    }
+    .author-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    /* A2UI Cards */
+    .a2card {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .a2card h3 { font-family: 'Outfit', sans-serif; color: #38bdf8; font-size: 1.1rem; }
+    .a2card h4 { font-family: 'Outfit', sans-serif; color: var(--accent); font-size: 0.95rem; margin-top: 0.35rem; }
+    .a2card p { color: #cbd5e1; font-size: 0.9rem; line-height: 1.4; }
+    .a2card img { max-width: 100%; border-radius: 8px; margin-top: 0.5rem; border: 1px solid var(--panel-border); }
+    /* Controls Footer */
+    .footer-container {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--panel-border);
+      padding: 1rem 1.5rem;
+    }
+    .chips-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+      overflow-x: auto;
+
+    }
+    .chip {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid var(--panel-border);
+      color: #e2e8f0;
+      padding: 0.5rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.825rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .chip:hover {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .input-bar {
+      display: flex;
+      gap: 0.75rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    input#input {
+      flex: 1;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 0.85rem 1.25rem;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    input#input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25);
+    }
+    .btn-send {
+      background: var(--accent-gradient);
+      border: none;
+      border-radius: 12px;
+      padding: 0 1.5rem;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+    }
+    .btn-send:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined" style="color: #fff;">travel_explore</span>
+      </div>
+      <div>
+        <div class="brand-title">Enterprise AI Search</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Knowledge Discovery & RAG Intelligence</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        Vector Index Online
+      </div>
+    </div>
+  </header>
+
+  <div id="messages">
+    <div class="message agent">
+      <div class="author-tag">
+        <span class="material-symbols-outlined" style="font-size: 14px; color: var(--accent);">psychology</span>
+        Enterprise AI Search Agent
+      </div>
+      <div class="msg-bubble">
+        Welcome to Enterprise AI Search! Ask me to search technical documentation, summarize architecture specifications, or generate RAG retrieval flowcharts.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-container">
+    <div class="chips-row">
+      <div class="chip" onclick="sendPrompt('Search internal engineering docs for API authentication')">
+        🔍 Search API Authentication
+      </div>
+      <div class="chip" onclick="sendPrompt('Summarize Q3 cloud architecture guidelines')">
+        📄 Summarize Cloud Architecture
+      </div>
+      <div class="chip" onclick="sendPrompt('Generate RAG retrieval data flow diagram')">
+        📊 Generate RAG Flowchart
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <input type="text" id="input" placeholder="Search enterprise docs, architecture specs, or request RAG summaries..." onkeydown="if(event.key==='Enter') sendMessage()" />
+      <button class="btn-send" onclick="sendMessage()">
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let sessionId = null;
+
+    function sendPrompt(text) {
+      document.getElementById('input').value = text;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      const inputEl = document.getElementById('input');
+      const query = inputEl.value.trim();
+      if (!query) return;
+
+      appendUserMessage(query);
+      inputEl.value = '';
+
+      try {
+        const resp = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: query, session_id: sessionId })
+        });
+        const data = await resp.json();
+        if (data.session_id) sessionId = data.session_id;
+
+        renderAgentResponse(data.parts || []);
+      } catch (err) {
+        appendAgentMessage("Error contacting AI Search server: " + err.message);
+      }
+    }
+
+    function appendUserMessage(text) {
+      const msgs = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = 'message user';
+      div.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function renderAgentResponse(parts) {
+      const msgs = document.getElementById('messages');
+      const container = document.createElement('div');
+      container.className = 'message agent';
+      
+      let html = `<div class="author-tag"><span class="material-symbols-outlined" style="font-size: 14px; color: var(--accent);">psychology</span>Enterprise AI Search Agent</div>`;
+      
+      parts.forEach(part => {
+        if (part.kind === 'text') {
+          html += `<div class="msg-bubble">${formatMarkdown(part.text)}</div>`;
+        } else if (part.kind === 'a2ui' && part.data) {
+          html += renderA2UI(part.data);
+        }
+      });
+
+      container.innerHTML = html;
+      msgs.appendChild(container);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function renderA2UI(a2data) {
+      try {
+        const components = a2data.surfaceUpdate.components;
+        let cardHtml = `<div class="a2card">`;
+        
+        components.forEach(item => {
+          const comp = item.component;
+          if (comp.Text) {
+            const txt = comp.Text.text?.literalString || '';
+            const hint = comp.Text.usageHint || 'body';
+            if (hint === 'h3') cardHtml += `<h3>${escapeHtml(txt)}</h3>`;
+            else if (hint === 'h4') cardHtml += `<h4>${escapeHtml(txt)}</h4>`;
+            else cardHtml += `<p>${formatMarkdown(txt)}</p>`;
+          } else if (comp.Divider) {
+            cardHtml += `<hr style="border: none; border-top: 1px solid var(--panel-border); margin: 0.5rem 0;" />`;
+          }
+        });
+        
+        cardHtml += `</div>`;
+        return cardHtml;
+      } catch(e) {
+        return `<div class="a2card"><p>${escapeHtml(JSON.stringify(a2data))}</p></div>`;
+      }
+    }
+
+    function formatMarkdown(text) {
+      if (!text) return '';
+      return escapeHtml(text)
+        .replace(/\n\n/g, '<br/><br/>')
+        .replace(/\n/g, '<br/>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+  </script>
+</body>
+</html>
